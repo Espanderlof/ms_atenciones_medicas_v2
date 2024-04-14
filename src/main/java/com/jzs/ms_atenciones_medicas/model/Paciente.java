@@ -1,6 +1,8 @@
 package com.jzs.ms_atenciones_medicas.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.*;
@@ -11,7 +13,6 @@ import java.util.List;
 
 @Entity
 @Table(name = "at_pacientes")
-@JsonIdentityReference(alwaysAsId = true)
 public class Paciente {
     @Id
     @Column(name = "rut")
@@ -35,8 +36,11 @@ public class Paciente {
     private List<HistorialMedico> historialMedico;
 
     @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @JsonIgnore
     private List<AtencionMedica> atencionesMedicas;
+    
+    public Paciente() {
+    }
 
     public Paciente(String rut, String nombre, String direccion, LocalDate fechaNacimiento) {
         this.rut = rut;

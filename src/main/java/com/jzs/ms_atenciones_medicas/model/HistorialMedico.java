@@ -1,6 +1,8 @@
 package com.jzs.ms_atenciones_medicas.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -9,7 +11,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "at_historial_medico")
-@JsonIdentityReference(alwaysAsId = true)
 public class HistorialMedico {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,7 +28,11 @@ public class HistorialMedico {
     @ManyToOne
     @JoinColumn(name = "paciente_rut")
     @NotNull(message = "El paciente no puede ser nulo")
+    @JsonBackReference
     private Paciente paciente;
+
+    public HistorialMedico() {
+    }
 
     public HistorialMedico(String detalleHistorial, LocalDateTime fechaIngresoHistorial) {
         this.detalleHistorial = detalleHistorial;
