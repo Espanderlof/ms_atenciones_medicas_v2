@@ -3,6 +3,7 @@ package com.jzs.ms_atenciones_medicas.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,8 +30,17 @@ public class AtMedicasController {
         return ResponseEntity.ok(atencionesMedicas);
     }
 
+    @RequestMapping(value = {"/", "/paciente/"}, method = {RequestMethod.GET, RequestMethod.DELETE})
+    public ResponseEntity<?> handleEmptyRequest() {
+        return ResponseEntity.badRequest().body(new ErrorResponse(false, "Debe proporcionar el ID."));
+    }
+
     @GetMapping("/{id}")
-    public ResponseEntity<?> getAtencionMedicaById(@PathVariable Long id) {
+    public ResponseEntity<?> getAtencionMedicaById(@Validated @PathVariable(required = false) Long id) {
+        if (id == null) {
+            return ResponseEntity.badRequest().body(new ErrorResponse(false, "Debe proporcionar el ID de la atención médica."));
+        }
+    
         try {
             AtencionMedica atencionMedica = atMedicasService.getAtencionMedicaById(id);
             return ResponseEntity.ok(atencionMedica);
@@ -40,14 +50,12 @@ public class AtMedicasController {
     }
 
     @GetMapping("/paciente/{pacienteRut}")
-    public ResponseEntity<?> getAtencionesMedicasByPacienteRut(@PathVariable String pacienteRut) {
-        Paciente paciente = new Paciente();
-        paciente.setRut(pacienteRut);
-        List<AtencionMedica> atencionesMedicas = atMedicasService.getAtencionesMedicasByPaciente(paciente);
-        if (atencionesMedicas.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(false, "No se encontraron atenciones médicas para el paciente con RUT " + pacienteRut + "."));
+    public ResponseEntity<?> getPacienteByRut(@PathVariable String pacienteRut) {
+        Paciente paciente = atMedicasService.getPacienteByRut(pacienteRut);
+        if (paciente == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(false, "No se encontró el paciente con RUT " + pacienteRut + "."));
         }
-        return ResponseEntity.ok(atencionesMedicas);
+        return ResponseEntity.ok(paciente);
     }
 
     @PostMapping

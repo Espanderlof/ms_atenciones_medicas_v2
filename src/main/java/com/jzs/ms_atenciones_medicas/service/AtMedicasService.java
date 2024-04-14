@@ -12,4 +12,5 @@ public interface AtMedicasService {
     AtencionMedica createAtencionMedica(AtencionMedica atencionMedica);
     AtencionMedica updateAtencionMedica(Long id, AtencionMedica atencionMedica);
     void deleteAtencionMedica(Long id);
+    Paciente getPacienteByRut(String rut);
 }

@@ -52,4 +52,9 @@ public class AtMedicasServiceImpl implements AtMedicasService {
         AtencionMedica atencionMedica = getAtencionMedicaById(id);
         atMedicasRepository.delete(atencionMedica);
     }
+
+    @Override
+    public Paciente getPacienteByRut(String rut) {
+        return atMedicasRepository.findPacienteByRut(rut);
+    }
 }
