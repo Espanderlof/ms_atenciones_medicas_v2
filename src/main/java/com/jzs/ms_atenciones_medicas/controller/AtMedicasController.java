@@ -1,6 +1,9 @@
 package com.jzs.ms_atenciones_medicas.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.CollectionModel;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -16,7 +19,7 @@ import jakarta.validation.Valid;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/atenciones")
@@ -25,9 +28,18 @@ public class AtMedicasController {
     private AtMedicasService atMedicasService;
 
     @GetMapping
-    public ResponseEntity<List<AtencionMedica>> getAllAtencionesMedicas() {
+    public CollectionModel<EntityModel<AtencionMedica>> getAllAtencionesMedicas() {
         List<AtencionMedica> atencionesMedicas = atMedicasService.getAllAtencionesMedicas();
-        return ResponseEntity.ok(atencionesMedicas);
+        List<EntityModel<AtencionMedica>> atencionesResources = atencionesMedicas.stream()
+            .map(atencion -> EntityModel.of(atencion,
+                WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAtencionMedicaById(atencion.getId())).withSelfRel()
+            ))
+            .collect(Collectors.toList());
+
+        WebMvcLinkBuilder linkTo = WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAllAtencionesMedicas());
+        CollectionModel<EntityModel<AtencionMedica>> resources = CollectionModel.of(atencionesResources, linkTo.withRel("atenciones"));
+
+        return resources;
     }
 
     @RequestMapping(value = {"/", "/paciente/"}, method = {RequestMethod.GET, RequestMethod.DELETE})
@@ -36,52 +48,47 @@ public class AtMedicasController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getAtencionMedicaById(@Validated @PathVariable(required = false) Long id) {
+    public EntityModel<AtencionMedica> getAtencionMedicaById(@Validated @PathVariable(required = false) Long id) {
         if (id == null) {
-            return ResponseEntity.badRequest().body(new ErrorResponse(false, "Debe proporcionar el ID de la atención médica."));
+            throw new AtMedicasNotFoundException("Debe proporcionar el ID de la atención médica.");
         }
-    
-        try {
-            AtencionMedica atencionMedica = atMedicasService.getAtencionMedicaById(id);
-            return ResponseEntity.ok(atencionMedica);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(false, "No se encontró la atención médica con ID " + id + "."));
-        }
+
+        AtencionMedica atencionMedica = atMedicasService.getAtencionMedicaById(id);
+        return EntityModel.of(atencionMedica,
+            WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAtencionMedicaById(id)).withSelfRel(),
+            WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAllAtencionesMedicas()).withRel("all-atenciones"));
     }
 
     @GetMapping("/paciente/{pacienteRut}")
-    public ResponseEntity<?> getPacienteByRut(@PathVariable String pacienteRut) {
+    public EntityModel<Paciente> getPacienteByRut(@PathVariable String pacienteRut) {
         Paciente paciente = atMedicasService.getPacienteByRut(pacienteRut);
         if (paciente == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(false, "No se encontró el paciente con RUT " + pacienteRut + "."));
+            throw new AtMedicasNotFoundException("No se encontró el paciente con RUT " + pacienteRut);
         }
-        return ResponseEntity.ok(paciente);
+        return EntityModel.of(paciente,
+            WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getPacienteByRut(pacienteRut)).withSelfRel());
     }
 
     @PostMapping
-    public ResponseEntity<?> createAtencionMedica(@Valid @RequestBody AtencionMedica atencionMedica) {
+    public EntityModel<AtencionMedica> createAtencionMedica(@Valid @RequestBody AtencionMedica atencionMedica) {
         AtencionMedica nuevaAtencionMedica = atMedicasService.createAtencionMedica(atencionMedica);
-        return ResponseEntity.status(HttpStatus.CREATED).body(nuevaAtencionMedica);
+        return EntityModel.of(nuevaAtencionMedica,
+            WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAtencionMedicaById(nuevaAtencionMedica.getId())).withSelfRel(),
+            WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAllAtencionesMedicas()).withRel("all-atenciones"));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateAtencionMedica(@PathVariable Long id, @Valid @RequestBody AtencionMedica atencionMedica) {
-        try {
-            AtencionMedica atencionMedicaActualizada = atMedicasService.updateAtencionMedica(id, atencionMedica);
-            return ResponseEntity.ok(atencionMedicaActualizada);
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(false, "No se encontró la atención médica con ID " + id + "."));
-        }
+    public EntityModel<AtencionMedica> updateAtencionMedica(@PathVariable Long id, @Valid @RequestBody AtencionMedica atencionMedica) {
+        AtencionMedica atencionMedicaActualizada = atMedicasService.updateAtencionMedica(id, atencionMedica);
+        return EntityModel.of(atencionMedicaActualizada,
+            WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAtencionMedicaById(id)).withSelfRel(),
+            WebMvcLinkBuilder.linkTo(WebMvcLinkBuilder.methodOn(this.getClass()).getAllAtencionesMedicas()).withRel("all-atenciones"));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteAtencionMedica(@PathVariable Long id) {
-        try {
-            atMedicasService.deleteAtencionMedica(id);
-            return ResponseEntity.ok(new ErrorResponse(true, "Atención médica eliminada correctamente."));
-        } catch (NoSuchElementException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(false, "No se encontró la atención médica con ID " + id + "."));
-        }
+        atMedicasService.deleteAtencionMedica(id);
+        return ResponseEntity.ok(new ErrorResponse(true, "Atención médica eliminada correctamente."));
     }
 
     static class ErrorResponse {
@@ -112,5 +119,11 @@ public class AtMedicasController {
             errors.put(fieldName, errorMessage);
         });
         return errors;
+    }
+
+    static class AtMedicasNotFoundException extends RuntimeException {
+        public AtMedicasNotFoundException(String message) {
+            super(message);
+        }
     }
 }

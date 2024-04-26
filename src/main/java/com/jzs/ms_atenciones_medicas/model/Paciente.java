@@ -5,13 +5,14 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Entity
 @Table(name = "at_pacientes")
-public class Paciente {
+public class Paciente extends RepresentationModel<Paciente> {
     @Id
     @Column(name = "rut")
     @NotBlank(message = "El RUT no puede estar vacío")

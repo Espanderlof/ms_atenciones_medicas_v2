@@ -4,12 +4,13 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "at_historial_medico")
-public class HistorialMedico {
+public class HistorialMedico extends RepresentationModel<HistorialMedico> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_historial")
