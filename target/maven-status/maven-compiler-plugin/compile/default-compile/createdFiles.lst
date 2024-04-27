@@ -1,0 +1,11 @@
+com\jzs\ms_atenciones_medicas\controller\AtMedicasNotFoundException.class
+com\jzs\ms_atenciones_medicas\MsAtencionesMedicasApplication.class
+com\jzs\ms_atenciones_medicas\model\AtencionMedica.class
+com\jzs\ms_atenciones_medicas\model\HistorialMedico.class
+com\jzs\ms_atenciones_medicas\model\Paciente.class
+com\jzs\ms_atenciones_medicas\service\AtMedicasServiceImpl.class
+com\jzs\ms_atenciones_medicas\controller\AtMedicasController.class
+com\jzs\ms_atenciones_medicas\service\AtMedicasService.class
+com\jzs\ms_atenciones_medicas\controller\AtMedicasController$ErrorResponse.class
+com\jzs\ms_atenciones_medicas\controller\AtMedicasController$AtMedicasNotFoundException.class
+com\jzs\ms_atenciones_medicas\repository\AtMedicasRepository.class
