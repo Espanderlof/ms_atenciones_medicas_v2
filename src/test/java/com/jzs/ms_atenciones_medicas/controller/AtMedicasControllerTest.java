@@ -35,16 +35,17 @@ public class AtMedicasControllerTest {
         AtencionMedica atencionMedica2 = new AtencionMedica(LocalDateTime.now(), "Detalle 2", "Centro 2");
         atencionMedica2.setId(2L);
         List<AtencionMedica> atencionesMedicas = Arrays.asList(atencionMedica1, atencionMedica2);
-
+    
         when(atMedicasServiceMock.getAllAtencionesMedicas()).thenReturn(atencionesMedicas);
-
+    
         mockMvc.perform(MockMvcRequestBuilders.get("/atenciones"))
                 .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$", Matchers.hasSize(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].id", Matchers.is(1)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[0].detalleAtencion", Matchers.is("Detalle 1")))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].id", Matchers.is(2)))
-                .andExpect(MockMvcResultMatchers.jsonPath("$[1].detalleAtencion", Matchers.is("Detalle 2")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$._embedded.atencionMedicaList", Matchers.hasSize(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$._embedded.atencionMedicaList[0].id", Matchers.is(1)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$._embedded.atencionMedicaList[0].detalleAtencion", Matchers.is("Detalle 1")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$._embedded.atencionMedicaList[1].id", Matchers.is(2)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$._embedded.atencionMedicaList[1].detalleAtencion", Matchers.is("Detalle 2")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$._links.atenciones.href", Matchers.endsWith("/atenciones")));
     }
 
     @Test
