@@ -2,12 +2,13 @@ package com.jzs.ms_atenciones_medicas.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "at_atenciones_medicas")
-public class AtencionMedica {
+public class AtencionMedica extends RepresentationModel<AtencionMedica> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
