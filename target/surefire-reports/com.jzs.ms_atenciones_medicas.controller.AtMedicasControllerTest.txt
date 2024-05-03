@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.jzs.ms_atenciones_medicas.controller.AtMedicasControllerTest
 -------------------------------------------------------------------------------
-Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.657 s -- in com.jzs.ms_atenciones_medicas.controller.AtMedicasControllerTest
+Tests run: 4, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 4.099 s -- in com.jzs.ms_atenciones_medicas.controller.AtMedicasControllerTest

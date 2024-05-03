@@ -1,13 +1,16 @@
 package com.jzs.ms_atenciones_medicas.controller;
 
 import com.jzs.ms_atenciones_medicas.model.AtencionMedica;
+import com.jzs.ms_atenciones_medicas.model.HistorialMedico;
 import com.jzs.ms_atenciones_medicas.model.Paciente;
 import com.jzs.ms_atenciones_medicas.service.AtMedicasService;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -80,6 +83,42 @@ public class AtMedicasControllerTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.nombre", Matchers.is("Juan")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.direccion", Matchers.is("Calle Principal 123")))
                 .andExpect(MockMvcResultMatchers.jsonPath("$.fechaNacimiento", Matchers.is("1990-01-01")));
+    }
+
+    @Test
+    public void createAtencionMedicaTest() throws Exception {
+        Paciente paciente = new Paciente();
+        paciente.setRut("12345678-9");
+        paciente.setNombre("Juan");
+        paciente.setDireccion("Calle Principal 123");
+        paciente.setFechaNacimiento(LocalDate.of(1990, 1, 1));
+
+        HistorialMedico historialMedico = new HistorialMedico();
+        historialMedico.setDetalleHistorial("Detalle del historial");
+        historialMedico.setFechaIngresoHistorial(LocalDateTime.now());
+        historialMedico.setPaciente(paciente);
+
+        paciente.setHistorialMedico(Arrays.asList(historialMedico));
+
+        AtencionMedica nuevaAtencionMedica = new AtencionMedica();
+        nuevaAtencionMedica.setFecha(LocalDateTime.now());
+        nuevaAtencionMedica.setDetalleAtencion("Detalle nueva atención");
+        nuevaAtencionMedica.setCentroSalud("Centro nuevo");
+        nuevaAtencionMedica.setPaciente(paciente);
+        nuevaAtencionMedica.setId(3L);
+
+        when(atMedicasServiceMock.createAtencionMedica(Mockito.any(AtencionMedica.class))).thenReturn(nuevaAtencionMedica);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/atenciones")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"fecha\":\"2023-05-02T10:00:00\",\"detalleAtencion\":\"Detalle nueva atención\",\"centroSalud\":\"Centro nuevo\",\"paciente\":{\"rut\":\"12345678-9\",\"nombre\":\"Juan\",\"direccion\":\"Calle Principal 123\",\"fechaNacimiento\":\"1990-01-01\",\"historialMedico\":[{\"detalleHistorial\":\"Detalle del historial\",\"fechaIngresoHistorial\":\"2023-05-02T10:00:00\"}]}}"))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id", Matchers.is(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.detalleAtencion", Matchers.is("Detalle nueva atención")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.centroSalud", Matchers.is("Centro nuevo")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$.paciente.rut", Matchers.is("12345678-9")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$._links.self.href", Matchers.endsWith("/atenciones/3")))
+                .andExpect(MockMvcResultMatchers.jsonPath("$._links.all-atenciones.href", Matchers.endsWith("/atenciones")));
     }
 
 }

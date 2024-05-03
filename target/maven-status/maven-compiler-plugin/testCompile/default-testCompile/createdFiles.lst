@@ -1,4 +1,5 @@
 com\jzs\ms_atenciones_medicas\controller\AtMedicasControllerTest.class
 com\jzs\ms_atenciones_medicas\MsAtencionesMedicasApplicationTests.class
 com\jzs\ms_atenciones_medicas\repository\AtMedicasRepositoryTest.class
+com\jzs\ms_atenciones_medicas\service\AtMedicasServicelmplTest.class
 com\jzs\ms_atenciones_medicas\service\AtMedicasServiceTest.class
